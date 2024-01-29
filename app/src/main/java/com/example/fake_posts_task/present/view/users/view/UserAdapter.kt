@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.fake_posts_task.databinding.UserListItemBinding
 import com.example.fake_posts_task.present.model.user.UserUiModel
 
-class UserAdapter :
+class UserAdapter(private val onClick: (String) -> Unit) :
     ListAdapter<UserUiModel, UserAdapter.UserViewHolder>(RecyclerDiffUtiluser_list_item()) {
 
 
@@ -33,7 +33,7 @@ class UserAdapter :
             binding.tvTitle.text = currentItem.title
             binding.tvBody.text = currentItem.body
             binding.cvAlbum.setOnClickListener {
-                // onClick(currentItem)
+                onClick(currentItem.id.toString())
             }
         }
     }

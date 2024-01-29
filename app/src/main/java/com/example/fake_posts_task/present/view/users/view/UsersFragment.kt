@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fake_posts_task.R
 import com.example.fake_posts_task.databinding.FragmentUsersBinding
@@ -36,7 +37,10 @@ class UsersFragment : Fragment() {
     }
 
     private fun initViews() {
-        userAdapter = UserAdapter()
+        userAdapter = UserAdapter {
+            val action=UsersFragmentDirections.actionUsersFragmentToUserItemFragment(it)
+            findNavController().navigate(action)
+        }
         binding.rvAlbums.apply {
             adapter = userAdapter
             layoutManager = LinearLayoutManager(requireContext())
@@ -46,12 +50,12 @@ class UsersFragment : Fragment() {
     private fun initObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             UserViewModel.getUser()
-            UserViewModel.profileState.collectLatest { userState ->
+            UserViewModel.userState.collectLatest { userState ->
                 if (userState.loading) {
                     showLoadingState()
                 } else {
                     populateUi(userState)
-                }
+               }
             }
             UserViewModel.errorState.collect {
                 showErrorState(it)
@@ -62,13 +66,16 @@ class UsersFragment : Fragment() {
     private fun showLoadingState() {
         binding.apply {
             loading.visibility = View.VISIBLE
+            rvAlbums.visibility=View.GONE
             loading.setAnimation(R.raw.loading)
         }
         Toast.makeText(requireContext(), "loading", Toast.LENGTH_SHORT).show()
     }
 
     private fun populateUi(userState: UserState.Display) {
+
         binding.loading.visibility = View.GONE
+        binding.rvAlbums.visibility=View.VISIBLE
         userAdapter.submitList(userState.userUiModel)
     }
 

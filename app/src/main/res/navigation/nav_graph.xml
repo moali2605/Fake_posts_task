@@ -9,5 +9,18 @@
         android:id="@+id/usersFragment"
         android:name="com.example.fake_posts_task.present.view.users.view.UsersFragment"
         android:label="fragment_users"
-        tools:layout="@layout/fragment_users" />
+        tools:layout="@layout/fragment_users" >
+        <action
+            android:id="@+id/action_usersFragment_to_userItemFragment"
+            app:destination="@id/userItemFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/userItemFragment"
+        android:name="com.example.fake_posts_task.present.view.user_data.view.UserItemFragment"
+        android:label="fragment_user_item"
+        tools:layout="@layout/fragment_user_item" >
+        <argument
+            android:name="id"
+            app:argType="string" />
+    </fragment>
 </navigation>

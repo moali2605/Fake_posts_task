@@ -1,10 +1,10 @@
-package com.example.fake_posts_task.present.view.users.viewModel
+package com.example.fake_posts_task.present.view.user_data.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fake_posts_task.domain.usecase.UserUseCase
+import com.example.fake_posts_task.domain.usecase.UserItemUseCase
 import com.example.fake_posts_task.present.mapper.toUserUiModel
-import com.example.fake_posts_task.present.view.users.view.UserState
+import com.example.fake_posts_task.present.view.user_data.view.UserItemState
 import com.example.fake_posts_task.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,30 +17,26 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class UserViewModel @Inject constructor(private val useCase: UserUseCase) : ViewModel() {
-    private val _UserState: MutableStateFlow<UserState.Display> =
-        MutableStateFlow(UserState.Display())
-    val userState = _UserState.asStateFlow()
-    private val _errorState: MutableSharedFlow<UserState.Failure> = MutableSharedFlow()
+class UserItemViewModel @Inject constructor(val useCase: UserItemUseCase) : ViewModel() {
+    private val _UserItemState: MutableStateFlow<UserItemState.Display> =
+        MutableStateFlow(UserItemState.Display())
+    val userItemState = _UserItemState.asStateFlow()
+    private val _errorState: MutableSharedFlow<UserItemState.Failure> = MutableSharedFlow()
     val errorState = _errorState.asSharedFlow()
 
-    fun getUser() {
-        _UserState.update {
+    fun getDataByUserId(id: String) {
+        _UserItemState.update {
             it.copy(loading = true)
         }
-        viewModelScope.launch {
 
-            useCase.getUser().collectLatest { response ->
+        viewModelScope.launch {
+            useCase.getDataByUserId(id).collectLatest { response ->
                 when (response) {
                     is Response.Success -> {
-
                         response.data?.let {
-                            _UserState.update { state ->
+                            _UserItemState.update { state ->
                                 state.copy(
-                                    userUiModel = response.data.map {
-                                        it.toUserUiModel()
-                                    }
-                                    ,loading = false
+                                    userUiModel = response.data.toUserUiModel(),loading = false
                                 )
                             }
                         }
@@ -49,9 +45,9 @@ class UserViewModel @Inject constructor(private val useCase: UserUseCase) : View
 
                     is Response.Failure -> {
                         response.error?.let { errorMessage ->
-                            _errorState.emit(UserState.Failure(errorMessage))
+                            _errorState.emit(UserItemState.Failure(errorMessage))
                         }
-                        _UserState.update { it.copy(loading = false) }
+                        _UserItemState.update { it.copy(loading = false) }
                     }
                 }
             }
